@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reuniões de AA Hoje</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="main-header">
+      <img src="https://portalaltotiete.com.br/Portal%20guararema/admlana/foto/img_m/m_16425.jpg" alt="Logo AA" class="header-logo">
+      <h1>Reuniões de AA Hoje</h1>
+    </header>
+
+    <div class="layout-grid">
+      <main class="card">
+        <h2>Reuniões Restantes Hoje</h2>
+        <div class="filters">
+          <button onclick="applyFilter('PT')"><img src="https://flagcdn.com/w20/br.png" alt="BR" class="btn-flag"> Português</button>
+          <button onclick="applyFilter('EN')"><img src="https://flagcdn.com/w20/gb.png" alt="UK" class="btn-flag"> English</button>
+          <button onclick="applyFilter('ALL')">Todas</button>
+        </div>
+        <ul id="meetings-list">
+          <p><em>Carregando reuniões...</em></p>
+        </ul>
+        <div id="pagination-controls" class="pagination"></div>
+      </main>
+
+      <aside class="card">
+        <h2>Reflexão Diária</h2>
+        <div id="daily-reflection">
+          <p><em>Carregando reflexão do dia...</em></p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="card banner-section">
+      <h2>Próximas Reuniões Temáticas</h2>
+      <div id="thematic-meetings-list" class="thematic-banner"></div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
