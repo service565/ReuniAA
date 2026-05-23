@@ -187,14 +187,16 @@ function loadThematicMeetings(data) {
     container.innerHTML += `
       <div class="thematic-card">
         <img src="${item['Imagem']}" alt="${item['Título']}" onerror="this.src='https://via.placeholder.com/300x150?text=Imagem+Indispon%C3%ADvel'">
-        <h3>${item['Título']}</h3>
-        <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
-        <p><strong>Data:</strong> ${item['Data']}</p>
-        <p><strong>Hora:</strong> ${item['Hora']}</p>
-        <p><strong>Grupo:</strong> ${item['Grupo'] || 'Não informado'}</p>
-        <div class="thematic-actions">
-          <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
-          <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
+        <div class="thematic-details">
+          <h3>${item['Título']}</h3>
+          <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
+          <p><strong>Data:</strong> ${item['Data']}</p>
+          <p><strong>Hora:</strong> ${item['Hora']}</p>
+          <p><strong>Grupo:</strong> ${item['Grupo'] || 'Não informado'}</p>
+          <div class="thematic-actions">
+            <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
+            <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
+          </div>
         </div>
       </div>
     `;
