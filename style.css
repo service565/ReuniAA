@@ -215,4 +215,26 @@ a:hover {
     align-items: flex-start;
     gap: 10px;
   }
+
+  /* Otimização da galeria temática para mobile */
+  .thematic-card {
+    min-width: 220px;
+    padding: 10px;
+  }
+
+  .thematic-card img {
+    max-height: 250px;
+  }
+
+  .thematic-card h3 {
+    font-size: 1em;
+  }
+
+  .thematic-card p {
+    font-size: 0.85em;
+  }
+
+  .thematic-actions {
+    flex-direction: column;
+  }
 }
