@@ -160,8 +160,9 @@ h1, h2 {
 
 .thematic-card img {
   width: 100%;
-  height: 120px;
-  object-fit: cover;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
   border-radius: 4px;
 }
 
