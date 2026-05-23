@@ -164,7 +164,6 @@ function loadThematicMeetings(data) {
   data.forEach(item => {
     if (!item['Título']) return; 
 
-    // Geração do link para o Google Calendar
     let calendarLink = '#';
     if (item['Data'] && item['Hora']) {
       const dateParts = item['Data'].split('/');
@@ -180,7 +179,7 @@ function loadThematicMeetings(data) {
         const endHourComputed = String((Number(hh) + 1) % 24).padStart(2, '0');
         const endIso = `${yyyy}${mm}${dd}T${endHourComputed}${min}00`;
         
-        const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
+        const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
         calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}`;
       }
     }
@@ -192,6 +191,7 @@ function loadThematicMeetings(data) {
         <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
         <p><strong>Data:</strong> ${item['Data']}</p>
         <p><strong>Hora:</strong> ${item['Hora']}</p>
+        <p><strong>Grupo:</strong> ${item['Grupo'] || 'Não informado'}</p>
         <div class="thematic-actions">
           <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
           <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
