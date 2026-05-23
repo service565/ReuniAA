@@ -164,13 +164,38 @@ function loadThematicMeetings(data) {
   data.forEach(item => {
     if (!item['Título']) return; 
 
+    // Geração do link para o Google Calendar
+    let calendarLink = '#';
+    if (item['Data'] && item['Hora']) {
+      const dateParts = item['Data'].split('/');
+      const timeParts = item['Hora'].split(':');
+      if (dateParts.length === 3 && timeParts.length === 2) {
+        const yyyy = dateParts[2].trim();
+        const mm = dateParts[1].trim().padStart(2, '0');
+        const dd = dateParts[0].trim().padStart(2, '0');
+        const hh = timeParts[0].trim().padStart(2, '0');
+        const min = timeParts[1].trim().padStart(2, '0');
+        
+        const startIso = `${yyyy}${mm}${dd}T${hh}${min}00`;
+        const endHourComputed = String((Number(hh) + 1) % 24).padStart(2, '0');
+        const endIso = `${yyyy}${mm}${dd}T${endHourComputed}${min}00`;
+        
+        const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
+        calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}`;
+      }
+    }
+
     container.innerHTML += `
       <div class="thematic-card">
-        <img src="${item['Imagem']}" alt="${item['Título']}">
+        <img src="${item['Imagem']}" alt="${item['Título']}" onerror="this.src='https://via.placeholder.com/300x150?text=Imagem+Indispon%C3%ADvel'">
         <h3>${item['Título']}</h3>
+        <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
         <p><strong>Data:</strong> ${item['Data']}</p>
         <p><strong>Hora:</strong> ${item['Hora']}</p>
-        <a href="${item['Link']}" target="_blank">Saiba mais</a>
+        <div class="thematic-actions">
+          <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
+          <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
+        </div>
       </div>
     `;
   });
