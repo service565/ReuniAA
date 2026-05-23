@@ -1,7 +1,9 @@
 const SHEET_ID = '1o8Qlr5gVE7mhOSQUSDvabBNcopmb2ccEesZKJ0KKEKo';
-const URL_REUNIOES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Reuniões`;
-const URL_REFLEXOES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Reflexões`;
-const URL_TEMATICAS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Tematicas`;
+const noCache = Math.floor(Math.random() * 1000000);
+
+const URL_REUNIOES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Reuniões&nocache=${noCache}`;
+const URL_REFLEXOES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Reflexões&nocache=${noCache}`;
+const URL_TEMATICAS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Tematicas&nocache=${noCache}`;
 
 let dailyMeetingsData = [];
 let currentFilteredMeetings = [];
