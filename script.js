@@ -125,7 +125,6 @@ function renderPage() {
     const flagImg = isEnglish ? '<img src="https://flagcdn.com/w20/gb.png" alt="UK" class="flag-icon">' : '<img src="https://flagcdn.com/w20/br.png" alt="BR" class="flag-icon">';
     const endTimeStr = meeting['Horário de Término'] ? ` às ${meeting['Horário de Término']}` : '';
     
-    // Verificação de senha na coluna Anotações
     const notes = meeting['Anotações'] || '';
     let passwordHtml = '';
     if (notes.toLowerCase().includes('senha')) {
@@ -173,38 +172,55 @@ function loadThematicMeetings(data) {
   
   if (!data || data.length === 0) return;
 
-  data.forEach(item => {
-    if (!item['Título']) return; 
+  const currentDateTime = new Date();
 
-    let calendarLink = '#';
-    if (item['Data'] && item['Hora']) {
-      const dateParts = item['Data'].split('/');
-      const timeParts = item['Hora'].split(':');
-      if (dateParts.length === 3 && timeParts.length === 2) {
-        const yyyy = dateParts[2].trim();
-        const mm = dateParts[1].trim().padStart(2, '0');
-        const dd = dateParts[0].trim().padStart(2, '0');
-        const hh = timeParts[0].trim().padStart(2, '0');
-        const min = timeParts[1].trim().padStart(2, '0');
-        
-        const startIso = `${yyyy}${mm}${dd}T${hh}${min}00`;
-        const endHourComputed = String((Number(hh) + 1) % 24).padStart(2, '0');
-        const endIso = `${yyyy}${mm}${dd}T${endHourComputed}${min}00`;
-        
-        const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
-        calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}`;
-      }
+  // Filtra as reuniões que já passaram e ordena as restantes por data
+  const processedMeetings = data.map(item => {
+    if (!item['Título'] || !item['Data'] || !item['Hora']) return null;
+    
+    const dateParts = item['Data'].split('/');
+    const timeParts = item['Hora'].split(':');
+    
+    if (dateParts.length === 3 && timeParts.length >= 2) {
+      const yyyy = parseInt(dateParts[2].trim());
+      const mm = parseInt(dateParts[1].trim()) - 1; 
+      const dd = parseInt(dateParts[0].trim());
+      const hh = parseInt(timeParts[0].trim());
+      const min = parseInt(timeParts[1].trim());
+      
+      const meetingDate = new Date(yyyy, mm, dd, hh, min);
+      return { ...item, meetingDate };
     }
+    return null;
+  })
+  .filter(item => item !== null && item.meetingDate >= currentDateTime)
+  .sort((a, b) => a.meetingDate - b.meetingDate);
+
+  processedMeetings.forEach(item => {
+    const yyyy = item.meetingDate.getFullYear();
+    const mm = String(item.meetingDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(item.meetingDate.getDate()).padStart(2, '0');
+    const hh = String(item.meetingDate.getHours()).padStart(2, '0');
+    const min = String(item.meetingDate.getMinutes()).padStart(2, '0');
+    
+    const startIso = `${yyyy}${mm}${dd}T${hh}${min}00`;
+    const endHourComputed = String((item.meetingDate.getHours() + 1) % 24).padStart(2, '0');
+    const endIso = `${yyyy}${mm}${dd}T${endHourComputed}${min}00`;
+    
+    const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
+    const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}`;
 
     container.innerHTML += `
       <div class="thematic-card">
         <img src="${item['Imagem']}" alt="${item['Título']}" onerror="this.src='https://via.placeholder.com/300x150?text=Imagem+Indispon%C3%ADvel'">
         <div class="thematic-details">
-          <h3>${item['Título']}</h3>
-          <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
-          <p><strong>Data:</strong> ${item['Data']}</p>
-          <p><strong>Hora:</strong> ${item['Hora']}</p>
-          <p><strong>Grupo:</strong> ${item['Grupo'] || 'Não informado'}</p>
+          <div>
+            <h3>${item['Título']}</h3>
+            <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
+            <p><strong>Data:</strong> ${item['Data']}</p>
+            <p><strong>Hora:</strong> ${item['Hora']}</p>
+            <p><strong>Grupo:</strong> ${item['Grupo'] || 'Não informado'}</p>
+          </div>
           <div class="thematic-actions">
             <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
             <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
