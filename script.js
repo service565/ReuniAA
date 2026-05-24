@@ -125,13 +125,23 @@ function renderPage() {
     const flagImg = isEnglish ? '<img src="https://flagcdn.com/w20/gb.png" alt="UK" class="flag-icon">' : '<img src="https://flagcdn.com/w20/br.png" alt="BR" class="flag-icon">';
     const endTimeStr = meeting['Horário de Término'] ? ` às ${meeting['Horário de Término']}` : '';
     
+    // Verificação de senha na coluna Anotações
+    const notes = meeting['Anotações'] || '';
+    let passwordHtml = '';
+    if (notes.toLowerCase().includes('senha')) {
+      passwordHtml = `<div class="meeting-password">${notes}</div>`;
+    }
+    
     listElement.innerHTML += `
       <li>
         <div class="meeting-info">
           ${flagImg}
-          <span><strong>${meeting['Horário de Início']}${endTimeStr}</strong> - ${meeting['Nome da Reunião']}</span>
+          <div>
+            <span><strong>${meeting['Horário de Início']}${endTimeStr}</strong> - ${meeting['Nome da Reunião']}</span>
+            ${passwordHtml}
+          </div>
         </div>
-        <a href="${meeting['Link da Reunião']}" target="_blank">Acessar Sala</a>
+        <a href="${meeting['Link da Reunião']}" target="_blank" class="btn-join">Acessar Sala</a>
       </li>
     `;
   });
