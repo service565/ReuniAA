@@ -5,6 +5,7 @@
   --border: #e1e8ed;
   --accent: #3498db;
   --calendar-color: #e67e22;
+  --danger: #c0392b;
 }
 
 body {
@@ -93,11 +94,12 @@ h1, h2 {
 }
 
 #meetings-list li {
-  padding: 10px;
+  padding: 12px 10px;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 #meetings-list li:last-child {
@@ -106,7 +108,33 @@ h1, h2 {
 
 .meeting-info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+}
+
+.meeting-password {
+  font-size: 0.85em;
+  color: var(--danger);
+  margin-top: 4px;
+  font-weight: bold;
+  background-color: #fdf2f2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.btn-join {
+  background-color: var(--accent);
+  color: #fff !important;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.btn-join:hover {
+  opacity: 0.9;
+  text-decoration: none !important;
 }
 
 .pagination {
@@ -130,10 +158,9 @@ h1, h2 {
   cursor: not-allowed;
 }
 
-/* Modificado para Feed Vertical */
 .thematic-banner {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
   padding-bottom: 10px;
 }
@@ -144,21 +171,26 @@ h1, h2 {
   padding: 20px;
   background: #fff;
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 15px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .thematic-card img {
-  width: 35%;
-  max-width: 300px;
-  height: auto;
+  width: 100%;
+  max-height: 250px;
   object-fit: contain;
   border-radius: 6px;
 }
 
 .thematic-details {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.thematic-details > div {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -176,14 +208,13 @@ h1, h2 {
 }
 
 .thematic-actions {
-  margin-top: 12px;
+  margin-top: 15px;
   display: flex;
   gap: 8px;
 }
 
 .btn-action {
   flex: 1;
-  max-width: 200px;
   text-align: center;
   padding: 8px 12px;
   font-size: 0.85em;
@@ -226,17 +257,15 @@ a:hover {
     gap: 10px;
   }
 
-  /* Ajustes do Feed Vertical para Mobile */
+  .thematic-banner {
+    grid-template-columns: 1fr;
+  }
+
   .thematic-card {
-    flex-direction: column;
-    align-items: stretch;
     padding: 15px;
-    gap: 15px;
   }
 
   .thematic-card img {
-    width: 100%;
-    max-width: 100%;
     max-height: 350px;
   }
 
