@@ -70,7 +70,6 @@ function sharePage() {
   });
 }
 
-// Funções blindadas para receber os dados via JSON codificado
 function shareReflectionEncoded(encodedData) {
   try {
     const data = JSON.parse(decodeURIComponent(encodedData));
@@ -140,11 +139,9 @@ function displayDailyReflection(reflections) {
     const titleText = `${todayRef.Dia} de ${todayRef.Mês.trim()} - ${todayRef.Título}`;
     const cleanContentForShare = formattedText.replace(/<[^>]*>?/gm, '');
 
-    // Codifica os dados para não quebrar o HTML com aspas ou quebras de linha
     const textToSpeakEncoded = encodeURIComponent(`${titleText}. ${cleanContentForShare}`);
     const shareDataEncoded = encodeURIComponent(JSON.stringify({ title: titleText, text: cleanContentForShare }));
 
-    // Ícone vetorizado de share
     const shareIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`;
 
     container.innerHTML = `
@@ -364,7 +361,6 @@ function loadThematicMeetings(data) {
     const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
     const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}&ctz=America/Sao_Paulo`;
 
-    // Empacota os dados da reunião no objeto c/ encode 
     const shareDataEncoded = encodeURIComponent(JSON.stringify({
       title: item['Título'] || '',
       date: item['Data'] || '',
@@ -379,7 +375,12 @@ function loadThematicMeetings(data) {
         <img src="${item['Imagem']}" alt="${item['Título']}" onerror="this.src='https://via.placeholder.com/300x150?text=Imagem+Indispon%C3%ADvel'">
         <div class="thematic-details">
           <div>
-            <h3>${item['Título']} ${dateTagHtml}</h3>
+            <div class="thematic-header-line">
+              <h3>${item['Título']} ${dateTagHtml}</h3>
+              <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-share-icon-circle" title="Compartilhar">
+                ${shareIcon}
+              </button>
+            </div>
             <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
             <p><strong>Data:</strong> ${item['Data']}</p>
             <p><strong>Hora:</strong> ${item['Hora']}</p>
@@ -388,9 +389,6 @@ function loadThematicMeetings(data) {
           <div class="thematic-actions">
             <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
             <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Agenda</a>
-            <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-action btn-share-thematic" title="Compartilhar">
-              ${shareIcon}
-            </button>
           </div>
         </div>
       </div>
