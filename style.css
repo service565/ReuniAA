@@ -93,6 +93,10 @@ a:hover {
 
 .btn-share-ref {
   background-color: #27ae60;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
 }
 
 /* Filtros de Idioma */
@@ -331,6 +335,12 @@ a:hover {
   background-color: #27ae60;
   border: none;
   cursor: pointer;
+  flex: 0 0 auto;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .btn-action:hover {
@@ -398,6 +408,12 @@ a:hover {
 
   .thematic-actions {
     flex-direction: column;
+  }
+
+  .btn-share-thematic {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 0;
   }
 
   .btn-action {
