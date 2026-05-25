@@ -131,21 +131,35 @@ function renderPage() {
       passwordHtml = `<div class="meeting-password">${notes}</div>`;
     }
     
-    // Processamento inteligente da etiqueta de Público Alvo com separação por barra (/)
+    // Processamento da tag condicional baseada no dia atual
     const rawAudience = meeting['Público'] ? meeting['Público'].trim() : '';
     let audienceHtml = '';
+    
     if (rawAudience) {
       if (rawAudience.includes('/')) {
         const parts = rawAudience.split('/');
         const labelText = parts[0].trim();
-        const descText = parts[1].trim();
-        audienceHtml = `
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="audience-label">${labelText}</span>
-            <span class="audience-desc">${descText}</span>
-          </div>
-        `;
+        const conditionText = parts[1].trim().toLowerCase();
+        
+        // Mapeamento de termos comuns para o dia atual da semana
+        const dayCheck = currentDayName.toLowerCase(); // ex: "segunda", "terça"
+        
+        const shouldShowTag = conditionText.includes('sempre') || 
+                              conditionText.includes('todos os dias') || 
+                              conditionText.includes(dayCheck) ||
+                              (dayCheck === 'segunda' && conditionText.includes('seg')) ||
+                              (dayCheck === 'terça' && conditionText.includes('ter')) ||
+                              (dayCheck === 'quarta' && conditionText.includes('qua')) ||
+                              (dayCheck === 'quinta' && conditionText.includes('qui')) ||
+                              (dayCheck === 'sexta' && conditionText.includes('sex')) ||
+                              (dayCheck === 'sábado' && conditionText.includes('sáb')) ||
+                              (dayCheck === 'domingo' && conditionText.includes('dom'));
+
+        if (shouldShowTag) {
+          audienceHtml = `<span class="audience-label">${labelText}</span>`;
+        }
       } else {
+        // Se não houver barra, a tag aparece sempre que a reunião for listada
         audienceHtml = `<span class="audience-label">${rawAudience}</span>`;
       }
     }
@@ -155,8 +169,10 @@ function renderPage() {
         <div class="meeting-info">
           ${flagImg}
           <div class="meeting-text-container">
-            <span><strong>${meeting['Horário de Início']}${endTimeStr}</strong> - ${meeting['Nome da Reunião']}</span>
-            ${audienceHtml}
+            <div class="meeting-title-line">
+              <span><strong>${meeting['Horário de Início']}${endTimeStr}</strong> - ${meeting['Nome da Reunião']}</span>
+              ${audienceHtml}
+            </div>
             ${passwordHtml}
           </div>
         </div>
@@ -166,24 +182,6 @@ function renderPage() {
   });
 
   renderPagination();
-}
-
-function renderPagination() {
-  const totalPages = Math.ceil(currentFilteredMeetings.length / itemsPerPage);
-  const paginationControls = document.getElementById('pagination-controls');
-  
-  if (totalPages <= 1) return;
-
-  paginationControls.innerHTML = `
-    <button onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>Anterior</button>
-    <span>Página ${currentPage} de ${totalPages}</span>
-    <button onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Próxima</button>
-  `;
-}
-
-function changePage(direction) {
-  currentPage += direction;
-  renderPage();
 }
 
 function loadThematicMeetings(data) {
