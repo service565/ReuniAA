@@ -70,27 +70,38 @@ function sharePage() {
   });
 }
 
-function shareReflection(title, text) {
-  invokeShare({
-    title: 'Reflexão Diária - AA',
-    text: `*${title}*\n\n${text}`,
-    url: window.location.href
-  });
+// Funções blindadas para receber os dados via JSON codificado
+function shareReflectionEncoded(encodedData) {
+  try {
+    const data = JSON.parse(decodeURIComponent(encodedData));
+    invokeShare({
+      title: 'Reflexão Diária - AA',
+      text: `*${data.title}*\n\n${data.text}`,
+      url: window.location.href
+    });
+  } catch (e) {
+    console.error("Erro ao compartilhar reflexão:", e);
+  }
 }
 
-function shareThematic(title, date, time, facilitator, group, link) {
-  invokeShare({
-    title: `Reunião Temática: ${title}`,
-    text: `*${title}*\n\n📅 Data: ${date}\n⏰ Hora: ${time}\n🗣 Facilitador: ${facilitador}\n👥 Grupo: ${group}\n\n🔗 Link da sala: ${link}`,
-    url: window.location.href
-  });
+function shareThematicEncoded(encodedData) {
+  try {
+    const item = JSON.parse(decodeURIComponent(encodedData));
+    invokeShare({
+      title: `Reunião Temática: ${item.title}`,
+      text: `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`,
+      url: window.location.href
+    });
+  } catch (e) {
+    console.error("Erro ao compartilhar temática:", e);
+  }
 }
 
-function speakText(text) {
+function speakTextEncoded(encodedText) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/<[^>]*>?/gm, ''); 
-    currentSpeech = new SpeechSynthesisUtterance(cleanText);
+    const text = decodeURIComponent(encodedText);
+    currentSpeech = new SpeechSynthesisUtterance(text);
     currentSpeech.lang = 'pt-BR';
     window.speechSynthesis.speak(currentSpeech);
   } else {
@@ -129,11 +140,20 @@ function displayDailyReflection(reflections) {
     const titleText = `${todayRef.Dia} de ${todayRef.Mês.trim()} - ${todayRef.Título}`;
     const cleanContentForShare = formattedText.replace(/<[^>]*>?/gm, '');
 
+    // Codifica os dados para não quebrar o HTML com aspas ou quebras de linha
+    const textToSpeakEncoded = encodeURIComponent(`${titleText}. ${cleanContentForShare}`);
+    const shareDataEncoded = encodeURIComponent(JSON.stringify({ title: titleText, text: cleanContentForShare }));
+
+    // Ícone vetorizado de share
+    const shareIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`;
+
     container.innerHTML = `
       <div class="reflection-actions">
-        <button class="btn-reflection" onclick="speakText('${titleText}. ${cleanContentForShare.replace(/'/g, "\\'")}')">🔊 Ouvir</button>
+        <button class="btn-reflection" onclick="speakTextEncoded('${textToSpeakEncoded}')">🔊 Ouvir</button>
         <button class="btn-reflection" onclick="stopSpeaking()">⏹ Parar</button>
-        <button class="btn-reflection btn-share-ref" onclick="shareReflection('${titleText.replace(/'/g, "\\'")}', '${cleanContentForShare.replace(/'/g, "\\'")}')">📤 Compartilhar</button>
+        <button class="btn-reflection btn-share-ref" title="Compartilhar" onclick="shareReflectionEncoded('${shareDataEncoded}')">
+          ${shareIcon}
+        </button>
       </div>
       <p><strong>${titleText}</strong></p>
       <p>${formattedText}</p>
@@ -319,6 +339,8 @@ function loadThematicMeetings(data) {
     return;
   }
 
+  const shareIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`;
+
   processedMeetings.forEach(item => {
     const yyyy = item.meetingDate.getFullYear();
     const mm = String(item.meetingDate.getMonth() + 1).padStart(2, '0');
@@ -342,13 +364,15 @@ function loadThematicMeetings(data) {
     const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
     const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}&ctz=America/Sao_Paulo`;
 
-    // Escapando aspas para a função JS do botão share
-    const safeTitle = item['Título'].replace(/'/g, "\\'");
-    const safeDate = item['Data'].replace(/'/g, "\\'");
-    const safeTime = item['Hora'].replace(/'/g, "\\'");
-    const safeFacilitator = (item['Facilitador(a)'] || 'Não informado').replace(/'/g, "\\'");
-    const safeGroup = (item['Grupo'] || 'Não informado').replace(/'/g, "\\'");
-    const safeLink = item['Link'].replace(/'/g, "\\'");
+    // Empacota os dados da reunião no objeto c/ encode 
+    const shareDataEncoded = encodeURIComponent(JSON.stringify({
+      title: item['Título'] || '',
+      date: item['Data'] || '',
+      time: item['Hora'] || '',
+      facilitator: item['Facilitador(a)'] || 'Não informado',
+      group: item['Grupo'] || 'Não informado',
+      link: item['Link'] || ''
+    }));
 
     container.innerHTML += `
       <div class="thematic-card">
@@ -364,7 +388,9 @@ function loadThematicMeetings(data) {
           <div class="thematic-actions">
             <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
             <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Agenda</a>
-            <button onclick="shareThematic('${safeTitle}', '${safeDate}', '${safeTime}', '${safeFacilitator}', '${safeGroup}', '${safeLink}')" class="btn-action btn-share-thematic">📤 Compartilhar</button>
+            <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-action btn-share-thematic" title="Compartilhar">
+              ${shareIcon}
+            </button>
           </div>
         </div>
       </div>
