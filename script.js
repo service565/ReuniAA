@@ -230,6 +230,8 @@ function loadThematicMeetings(data) {
   if (!data || data.length === 0) return;
 
   const currentDateTime = new Date();
+  const todayMidnight = new Date(currentDateTime.getFullYear(), currentDateTime.getMonth(), currentDateTime.getDate()).getTime();
+  const tomorrowMidnight = new Date(currentDateTime.getFullYear(), currentDateTime.getMonth(), currentDateTime.getDate() + 1).getTime();
 
   const processedMeetings = data.map(item => {
     if (!item['Título'] || !item['Data'] || !item['Hora']) return null;
@@ -268,6 +270,15 @@ function loadThematicMeetings(data) {
     const endHourComputed = String((item.meetingDate.getHours() + 1) % 24).padStart(2, '0');
     const endIso = `${yyyy}${mm}${dd}T${endHourComputed}${min}00`;
     
+    const meetingMidnight = new Date(yyyy, item.meetingDate.getMonth(), item.meetingDate.getDate()).getTime();
+    let dateTagHtml = '';
+    
+    if (meetingMidnight === todayMidnight) {
+      dateTagHtml = '<span class="thematic-tag thematic-tag-hoje">Hoje</span>';
+    } else if (meetingMidnight === tomorrowMidnight) {
+      dateTagHtml = '<span class="thematic-tag thematic-tag-amanha">Amanhã</span>';
+    }
+    
     const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
     const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}&ctz=America/Sao_Paulo`;
 
@@ -276,7 +287,7 @@ function loadThematicMeetings(data) {
         <img src="${item['Imagem']}" alt="${item['Título']}" onerror="this.src='https://via.placeholder.com/300x150?text=Imagem+Indispon%C3%ADvel'">
         <div class="thematic-details">
           <div>
-            <h3>${item['Título']}</h3>
+            <h3>${item['Título']} ${dateTagHtml}</h3>
             <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
             <p><strong>Data:</strong> ${item['Data']}</p>
             <p><strong>Hora:</strong> ${item['Hora']}</p>
