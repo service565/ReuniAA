@@ -24,6 +24,8 @@ const currentMonthName = months[now.getMonth()];
 const currentHour = now.getHours();
 const currentMinute = now.getMinutes();
 
+let currentSpeech = null;
+
 function init() {
   Papa.parse(URL_REFLEXOES, {
     download: true,
@@ -51,6 +53,57 @@ function init() {
   });
 }
 
+function invokeShare(data) {
+  if (navigator.share) {
+    navigator.share(data).catch(console.error);
+  } else {
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(data.title + '\n\n' + data.text + '\n\n' + data.url)}`;
+    window.open(waUrl, '_blank');
+  }
+}
+
+function sharePage() {
+  invokeShare({
+    title: 'Reuniões de AA Hoje',
+    text: 'Encontre reuniões online de AA, reflexões diárias e grupos temáticos.',
+    url: window.location.href
+  });
+}
+
+function shareReflection(title, text) {
+  invokeShare({
+    title: 'Reflexão Diária - AA',
+    text: `*${title}*\n\n${text}`,
+    url: window.location.href
+  });
+}
+
+function shareThematic(title, date, time, facilitator, group, link) {
+  invokeShare({
+    title: `Reunião Temática: ${title}`,
+    text: `*${title}*\n\n📅 Data: ${date}\n⏰ Hora: ${time}\n🗣 Facilitador: ${facilitador}\n👥 Grupo: ${group}\n\n🔗 Link da sala: ${link}`,
+    url: window.location.href
+  });
+}
+
+function speakText(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/<[^>]*>?/gm, ''); 
+    currentSpeech = new SpeechSynthesisUtterance(cleanText);
+    currentSpeech.lang = 'pt-BR';
+    window.speechSynthesis.speak(currentSpeech);
+  } else {
+    alert("Seu navegador não suporta leitura em voz alta.");
+  }
+}
+
+function stopSpeaking() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
 function displayDailyReflection(reflections) {
   const container = document.getElementById('daily-reflection');
   
@@ -61,7 +114,6 @@ function displayDailyReflection(reflections) {
 
   if (todayRef) {
     let text = todayRef.Texto;
-
     text = text.replace(/COMO BILL VÊ\s*(IT)?/gi, "NA OPINIÃO DE BILL");
 
     const citationRegex = /((ALCOÓLICOS ANÔNIMOS|DOZE PASSOS E DOZE TRADIÇÕES|NA OPINIÃO DE BILL|VIVER SÓBRIO|REFLEXÕES DIÁRIAS)[^.]+?p\.?\s*\d+)/i;
@@ -74,8 +126,16 @@ function displayDailyReflection(reflections) {
       formattedText = text.replace(bookIsolatedRegex, '$1<br><br>');
     }
     
+    const titleText = `${todayRef.Dia} de ${todayRef.Mês.trim()} - ${todayRef.Título}`;
+    const cleanContentForShare = formattedText.replace(/<[^>]*>?/gm, '');
+
     container.innerHTML = `
-      <p><strong>${todayRef.Dia} de ${todayRef.Mês.trim()} - ${todayRef.Título}</strong></p>
+      <div class="reflection-actions">
+        <button class="btn-reflection" onclick="speakText('${titleText}. ${cleanContentForShare.replace(/'/g, "\\'")}')">🔊 Ouvir</button>
+        <button class="btn-reflection" onclick="stopSpeaking()">⏹ Parar</button>
+        <button class="btn-reflection btn-share-ref" onclick="shareReflection('${titleText.replace(/'/g, "\\'")}', '${cleanContentForShare.replace(/'/g, "\\'")}')">📤 Compartilhar</button>
+      </div>
+      <p><strong>${titleText}</strong></p>
       <p>${formattedText}</p>
     `;
   } else {
@@ -282,6 +342,14 @@ function loadThematicMeetings(data) {
     const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
     const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}&ctz=America/Sao_Paulo`;
 
+    // Escapando aspas para a função JS do botão share
+    const safeTitle = item['Título'].replace(/'/g, "\\'");
+    const safeDate = item['Data'].replace(/'/g, "\\'");
+    const safeTime = item['Hora'].replace(/'/g, "\\'");
+    const safeFacilitator = (item['Facilitador(a)'] || 'Não informado').replace(/'/g, "\\'");
+    const safeGroup = (item['Grupo'] || 'Não informado').replace(/'/g, "\\'");
+    const safeLink = item['Link'].replace(/'/g, "\\'");
+
     container.innerHTML += `
       <div class="thematic-card">
         <img src="${item['Imagem']}" alt="${item['Título']}" onerror="this.src='https://via.placeholder.com/300x150?text=Imagem+Indispon%C3%ADvel'">
@@ -295,7 +363,8 @@ function loadThematicMeetings(data) {
           </div>
           <div class="thematic-actions">
             <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
-            <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
+            <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Agenda</a>
+            <button onclick="shareThematic('${safeTitle}', '${safeDate}', '${safeTime}', '${safeFacilitator}', '${safeGroup}', '${safeLink}')" class="btn-action btn-share-thematic">📤 Compartilhar</button>
           </div>
         </div>
       </div>
