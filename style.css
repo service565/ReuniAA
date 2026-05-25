@@ -231,6 +231,28 @@ h1, h2 {
   margin: 0 0 8px 0;
   font-size: 1.2em;
   color: var(--primary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.thematic-tag {
+  font-size: 0.6em;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.thematic-tag-hoje {
+  background-color: var(--danger);
+}
+
+.thematic-tag-amanha {
+  background-color: var(--calendar-color);
 }
 
 .thematic-card p {
