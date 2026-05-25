@@ -131,7 +131,7 @@ function renderPage() {
       passwordHtml = `<div class="meeting-password">${notes}</div>`;
     }
     
-    // Processamento da tag condicional baseada no dia atual
+    // Processamento da tag condicional sem interromper o loop da página
     const rawAudience = meeting['Público'] ? meeting['Público'].trim() : '';
     let audienceHtml = '';
     
@@ -141,8 +141,7 @@ function renderPage() {
         const labelText = parts[0].trim();
         const conditionText = parts[1].trim().toLowerCase();
         
-        // Mapeamento de termos comuns para o dia atual da semana
-        const dayCheck = currentDayName.toLowerCase(); // ex: "segunda", "terça"
+        const dayCheck = currentDayName.toLowerCase(); 
         
         const shouldShowTag = conditionText.includes('sempre') || 
                               conditionText.includes('todos os dias') || 
@@ -159,7 +158,6 @@ function renderPage() {
           audienceHtml = `<span class="audience-label">${labelText}</span>`;
         }
       } else {
-        // Se não houver barra, a tag aparece sempre que a reunião for listada
         audienceHtml = `<span class="audience-label">${rawAudience}</span>`;
       }
     }
@@ -182,6 +180,24 @@ function renderPage() {
   });
 
   renderPagination();
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(currentFilteredMeetings.length / itemsPerPage);
+  const paginationControls = document.getElementById('pagination-controls');
+  
+  if (totalPages <= 1) return;
+
+  paginationControls.innerHTML = `
+    <button onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>Anterior</button>
+    <span>Página ${currentPage} de ${totalPages}</span>
+    <button onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Próxima</button>
+  `;
+}
+
+function changePage(direction) {
+  currentPage += direction;
+  renderPage();
 }
 
 function loadThematicMeetings(data) {
