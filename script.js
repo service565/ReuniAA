@@ -60,7 +60,23 @@ function displayDailyReflection(reflections) {
   );
 
   if (todayRef) {
-    const formattedText = todayRef.Texto.replace(/(ALCOÓLICOS ANÔNIMOS,\s*p\.?\s*\d+)/gi, '$1<br><br>');
+    let text = todayRef.Texto;
+
+    // 1. Corrige traduções erradas da literatura vindas do arquivo base
+    text = text.replace(/COMO BILL VÊ\s*(IT)?/gi, "NA OPINIÃO DE BILL");
+
+    // 2. Cria uma regra abrangente para encontrar a citação de literatura no início do texto
+    const citationRegex = /((ALCOÓLICOS ANÔNIMOS|DOZE PASSOS E DOZE TRADIÇÕES|NA OPINIÃO DE BILL|VIVER SÓBRIO|REFLEXÕES DIÁRIAS)[^.]+?p\.?\s*\d+)/i;
+
+    let formattedText = text;
+    if (citationRegex.test(text)) {
+      // Aplica a quebra de linha dupla logo após a citação com página detectada
+      formattedText = text.replace(citationRegex, '$1<br><br>');
+    } else {
+      // Caso não ache o padrão com página, mas encontre o título do livro isolado no começo
+      const bookIsolatedRegex = /^(ALCOÓLICOS ANÔNIMOS|DOZE PASSOS E DOZE TRADIÇÕES|NA OPINIÃO DE BILL|VIVER SÓBRIO|REFLEXÕES DIÁRIAS)/i;
+      formattedText = text.replace(bookIsolatedRegex, '$1<br><br>');
+    }
     
     container.innerHTML = `
       <p><strong>${todayRef.Dia} de ${todayRef.Mês.trim()} - ${todayRef.Título}</strong></p>
@@ -131,7 +147,7 @@ function renderPage() {
       passwordHtml = `<div class="meeting-password">${notes}</div>`;
     }
     
-    // Processamento da tag condicional sem interromper o loop da página
+    // Processamento da tag condicional sem interromper a paginação
     const rawAudience = meeting['Público'] ? meeting['Público'].trim() : '';
     let audienceHtml = '';
     
