@@ -26,6 +26,8 @@ const currentMinute = now.getMinutes();
 
 let currentSpeech = null;
 
+const shareIconSVG = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>`;
+
 function init() {
   Papa.parse(URL_REFLEXOES, {
     download: true,
@@ -79,20 +81,48 @@ function shareReflectionEncoded(encodedData) {
       url: window.location.href
     });
   } catch (e) {
-    console.error("Erro ao compartilhar reflexão:", e);
+    console.error("Erro ao partilhar reflexão:", e);
   }
 }
 
-function shareThematicEncoded(encodedData) {
+async function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
-    invokeShare({
+    
+    let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
+    
+    let shareData = {
       title: `Reunião Temática: ${item.title}`,
-      text: `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`,
+      text: shareText,
       url: window.location.href
-    });
+    };
+
+    if (item.image && navigator.canShare) {
+      try {
+        const response = await fetch(item.image);
+        const blob = await response.blob();
+        const ext = blob.type.split('/')[1] || 'jpg';
+        const file = new File([blob], `card_tematica.${ext}`, { type: blob.type });
+        
+        const dataWithFile = {
+          ...shareData,
+          files: [file]
+        };
+
+        if (navigator.canShare(dataWithFile)) {
+          await navigator.share(dataWithFile);
+          return; 
+        }
+      } catch (fetchError) {
+        console.warn("Falha ao anexar imagem (possível bloqueio de CORS). Partilhando apenas texto.", fetchError);
+        shareData.text += `\n🖼️ Imagem: ${item.image}`;
+      }
+    }
+
+    invokeShare(shareData);
+
   } catch (e) {
-    console.error("Erro ao compartilhar temática:", e);
+    console.error("Erro ao partilhar temática:", e);
   }
 }
 
@@ -104,7 +134,7 @@ function speakTextEncoded(encodedText) {
     currentSpeech.lang = 'pt-BR';
     window.speechSynthesis.speak(currentSpeech);
   } else {
-    alert("Seu navegador não suporta leitura em voz alta.");
+    alert("O seu navegador não suporta leitura em voz alta.");
   }
 }
 
@@ -142,14 +172,12 @@ function displayDailyReflection(reflections) {
     const textToSpeakEncoded = encodeURIComponent(`${titleText}. ${cleanContentForShare}`);
     const shareDataEncoded = encodeURIComponent(JSON.stringify({ title: titleText, text: cleanContentForShare }));
 
-    const shareIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`;
-
     container.innerHTML = `
       <div class="reflection-actions">
         <button class="btn-reflection" onclick="speakTextEncoded('${textToSpeakEncoded}')">🔊 Ouvir</button>
         <button class="btn-reflection" onclick="stopSpeaking()">⏹ Parar</button>
-        <button class="btn-reflection btn-share-ref" title="Compartilhar" onclick="shareReflectionEncoded('${shareDataEncoded}')">
-          ${shareIcon}
+        <button class="btn-share-icon-circle" title="Partilhar" onclick="shareReflectionEncoded('${shareDataEncoded}')">
+          ${shareIconSVG}
         </button>
       </div>
       <p><strong>${titleText}</strong></p>
@@ -274,7 +302,7 @@ function renderPage() {
             ${passwordHtml}
           </div>
         </div>
-        <a href="${meeting['Link da Reunião']}" target="_blank" class="btn-join">Acessar Sala</a>
+        <a href="${meeting['Link da Reunião']}" target="_blank" class="btn-join">Aceder à Sala</a>
       </li>
     `;
   });
@@ -336,8 +364,6 @@ function loadThematicMeetings(data) {
     return;
   }
 
-  const shareIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`;
-
   processedMeetings.forEach(item => {
     const yyyy = item.meetingDate.getFullYear();
     const mm = String(item.meetingDate.getMonth() + 1).padStart(2, '0');
@@ -367,7 +393,8 @@ function loadThematicMeetings(data) {
       time: item['Hora'] || '',
       facilitator: item['Facilitador(a)'] || 'Não informado',
       group: item['Grupo'] || 'Não informado',
-      link: item['Link'] || ''
+      link: item['Link'] || '',
+      image: item['Imagem'] || ''
     }));
 
     container.innerHTML += `
@@ -377,8 +404,8 @@ function loadThematicMeetings(data) {
           <div>
             <div class="thematic-header-line">
               <h3>${item['Título']} ${dateTagHtml}</h3>
-              <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-share-icon-circle" title="Compartilhar">
-                ${shareIcon}
+              <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-share-icon-circle" title="Partilhar">
+                ${shareIconSVG}
               </button>
             </div>
             <p><strong>Facilitador(a):</strong> ${item['Facilitador(a)'] || 'Não informado'}</p>
