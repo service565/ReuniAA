@@ -92,11 +92,23 @@ a:hover {
 }
 
 .btn-share-ref {
-  background-color: #27ae60;
+  background-color: transparent;
+  color: #7f8c8d;
+  border: 2px solid #bdc3c7;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.btn-share-ref:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background-color: #f4f7f6;
+  opacity: 1;
 }
 
 /* Filtros de Idioma */
@@ -272,14 +284,45 @@ a:hover {
   gap: 4px;
 }
 
-.thematic-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.2em;
-  color: var(--primary);
+.thematic-header-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.thematic-header-line h3 {
+  margin: 0;
+  flex: 1;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+  font-size: 1.2em;
+  color: var(--primary);
+}
+
+.btn-share-icon-circle {
+  background: transparent;
+  border: 2px solid #bdc3c7;
+  color: #7f8c8d;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-share-icon-circle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background-color: #f4f7f6;
 }
 
 /* Etiquetas Hoje / Amanhã das Temáticas */
@@ -331,18 +374,6 @@ a:hover {
   background-color: var(--calendar-color);
 }
 
-.btn-share-thematic {
-  background-color: #27ae60;
-  border: none;
-  cursor: pointer;
-  flex: 0 0 auto;
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
 .btn-action:hover {
   opacity: 0.9;
   text-decoration: none;
@@ -356,17 +387,17 @@ a:hover {
   background-color: var(--accent);
   color: white;
   border: none;
-  border-radius: 50px;
-  padding: 15px 20px;
-  font-size: 1em;
-  font-weight: bold;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   cursor: pointer;
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   transition: transform 0.2s ease, opacity 0.2s ease;
+  padding: 0;
 }
 
 .floating-share-btn:hover {
@@ -398,22 +429,12 @@ a:hover {
     max-height: 350px;
   }
 
-  .thematic-card h3 {
-    font-size: 1.1em;
-  }
-
   .thematic-card p {
     font-size: 0.9em;
   }
 
   .thematic-actions {
     flex-direction: column;
-  }
-
-  .btn-share-thematic {
-    width: 100%;
-    max-width: 100%;
-    padding: 10px 0;
   }
 
   .btn-action {
@@ -423,7 +444,5 @@ a:hover {
   .floating-share-btn {
     bottom: 20px;
     right: 20px;
-    padding: 12px 15px;
-    font-size: 0.9em;
   }
 }
