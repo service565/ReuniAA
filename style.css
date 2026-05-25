@@ -1,340 +1,69 @@
-:root {
-  --primary: #2c3e50;
-  --bg: #f4f7f6;
-  --card-bg: #ffffff;
-  --border: #e1e8ed;
-  --accent: #3498db;
-  --calendar-color: #e67e22;
-  --danger: #c0392b;
-  --label-bg: #e8f4f8;
-  --label-color: #2980b9;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg);
-  color: #333;
-  margin: 0;
-  padding: 20px;
-}
-
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.main-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.header-logo {
-  max-height: 120px;
-  margin-bottom: 10px;
-}
-
-h1, h2 {
-  color: var(--primary);
-  margin-top: 0;
-}
-
-.layout-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-}
-
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-#daily-reflection {
-  font-size: 0.95em;
-  line-height: 1.5;
-}
-
-.filters {
-  margin-bottom: 15px;
-}
-
-.filters button {
-  padding: 8px 16px;
-  margin-right: 10px;
-  border: 1px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
-  border-radius: 4px;
+/* Botão flutuante de Compartilhar Página */
+.floating-share-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 15px 20px;
+  font-size: 1em;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   cursor: pointer;
-  display: inline-flex;
+  z-index: 1000;
+  display: flex;
   align-items: center;
+  gap: 8px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.filters button:hover {
+.floating-share-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-3px);
+}
+
+/* Botões da Reflexão Diária (Ler, Parar, Compartilhar) */
+.reflection-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.btn-reflection {
   background: var(--primary);
   color: #fff;
-}
-
-.btn-flag {
-  width: 16px;
-  margin-right: 6px;
-}
-
-.flag-icon {
-  width: 20px;
-  margin-right: 8px;
-}
-
-#meetings-list {
-  list-style-type: none;
-  padding: 0;
-  min-height: 450px; 
-}
-
-#meetings-list li {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-#meetings-list li:last-child {
-  border-bottom: none;
-}
-
-.meeting-info {
-  display: flex;
-  align-items: flex-start;
-  flex: 1;
-}
-
-.meeting-text-container {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-}
-
-.meeting-title-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.audience-label {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.72em;
-  font-weight: bold;
-  background-color: var(--label-bg);
-  color: var(--label-color);
-  padding: 2px 8px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.meeting-password {
-  font-size: 0.85em;
-  color: var(--danger);
-  margin-top: 2px;
-  font-weight: bold;
-  background-color: #fdf2f2;
-  padding: 2px 6px;
-  border-radius: 4px;
-  display: inline-block;
-  width: fit-content;
-}
-
-.btn-join {
-  background-color: var(--accent);
-  color: #fff !important;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.btn-join:hover {
-  opacity: 0.9;
-  text-decoration: none !important;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.pagination button {
-  padding: 5px 15px;
-  border: 1px solid var(--primary);
-  background: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.thematic-banner {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  padding-bottom: 10px;
-}
-
-.thematic-card {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-}
-
-.thematic-card img {
-  width: 100%;
-  max-height: 250px;
-  object-fit: contain;
-  border-radius: 6px;
-}
-
-.thematic-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.thematic-details > div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.thematic-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.2em;
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.thematic-tag {
-  font-size: 0.6em;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: #fff;
-  white-space: nowrap;
-}
-
-.thematic-tag-hoje {
-  background-color: var(--danger);
-}
-
-.thematic-tag-amanha {
-  background-color: var(--calendar-color);
-}
-
-.thematic-card p {
-  margin: 4px 0;
-  font-size: 0.95em;
-}
-
-.thematic-actions {
-  margin-top: auto;
-  display: flex;
-  gap: 8px;
-}
-
-.btn-action {
-  flex: 1;
-  text-align: center;
+  border: none;
   padding: 8px 12px;
-  font-size: 0.85em;
   border-radius: 4px;
-  color: #fff;
-  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.85em;
   font-weight: bold;
+  transition: opacity 0.2s;
 }
 
-.btn-meeting-link {
-  background-color: var(--accent);
-}
-
-.btn-calendar-link {
-  background-color: var(--calendar-color);
-}
-
-.btn-action:hover {
+.btn-reflection:hover {
   opacity: 0.9;
-  text-decoration: none;
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
+.btn-share-ref {
+  background-color: #27ae60;
 }
 
-a:hover {
-  text-decoration: underline;
+/* Ajuste no botão de compartilhar da temática */
+.btn-share-thematic {
+  background-color: #27ae60;
+  border: none;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  #meetings-list li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .thematic-banner {
-    grid-template-columns: 1fr;
-  }
-
-  .thematic-card {
-    padding: 15px;
-  }
-
-  .thematic-card img {
-    max-height: 350px;
-  }
-
-  .thematic-card h3 {
-    font-size: 1.1em;
-  }
-
-  .thematic-card p {
+  .floating-share-btn {
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 15px;
     font-size: 0.9em;
-  }
-
-  .thematic-actions {
-    flex-direction: column;
-  }
-
-  .btn-action {
-    max-width: 100%;
   }
 }
