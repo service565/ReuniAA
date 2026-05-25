@@ -125,18 +125,29 @@ function renderPage() {
     const flagImg = isEnglish ? '<img src="https://flagcdn.com/w20/gb.png" alt="UK" class="flag-icon">' : '<img src="https://flagcdn.com/w20/br.png" alt="BR" class="flag-icon">';
     const endTimeStr = meeting['Horário de Término'] ? ` às ${meeting['Horário de Término']}` : '';
     
-    // Verificação de senha nas anotações
     const notes = meeting['Anotações'] || '';
     let passwordHtml = '';
     if (notes.toLowerCase().includes('senha')) {
       passwordHtml = `<div class="meeting-password">${notes}</div>`;
     }
     
-    // Processamento da etiqueta de Público Alvo/Exclusivo
-    const audience = meeting['Público'] ? meeting['Público'].trim() : '';
+    // Processamento inteligente da etiqueta de Público Alvo com separação por barra (/)
+    const rawAudience = meeting['Público'] ? meeting['Público'].trim() : '';
     let audienceHtml = '';
-    if (audience) {
-      audienceHtml = `<span class="audience-label">${audience}</span>`;
+    if (rawAudience) {
+      if (rawAudience.includes('/')) {
+        const parts = rawAudience.split('/');
+        const labelText = parts[0].trim();
+        const descText = parts[1].trim();
+        audienceHtml = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="audience-label">${labelText}</span>
+            <span class="audience-desc">${descText}</span>
+          </div>
+        `;
+      } else {
+        audienceHtml = `<span class="audience-label">${rawAudience}</span>`;
+      }
     }
     
     listElement.innerHTML += `
