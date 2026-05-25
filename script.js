@@ -125,18 +125,27 @@ function renderPage() {
     const flagImg = isEnglish ? '<img src="https://flagcdn.com/w20/gb.png" alt="UK" class="flag-icon">' : '<img src="https://flagcdn.com/w20/br.png" alt="BR" class="flag-icon">';
     const endTimeStr = meeting['Horário de Término'] ? ` às ${meeting['Horário de Término']}` : '';
     
+    // Verificação de senha nas anotações
     const notes = meeting['Anotações'] || '';
     let passwordHtml = '';
     if (notes.toLowerCase().includes('senha')) {
       passwordHtml = `<div class="meeting-password">${notes}</div>`;
     }
     
+    // Processamento da etiqueta de Público Alvo/Exclusivo
+    const audience = meeting['Público'] ? meeting['Público'].trim() : '';
+    let audienceHtml = '';
+    if (audience) {
+      audienceHtml = `<span class="audience-label">${audience}</span>`;
+    }
+    
     listElement.innerHTML += `
       <li>
         <div class="meeting-info">
           ${flagImg}
-          <div>
+          <div class="meeting-text-container">
             <span><strong>${meeting['Horário de Início']}${endTimeStr}</strong> - ${meeting['Nome da Reunião']}</span>
+            ${audienceHtml}
             ${passwordHtml}
           </div>
         </div>
@@ -174,7 +183,6 @@ function loadThematicMeetings(data) {
 
   const currentDateTime = new Date();
 
-  // Filtra as reuniões que já passaram e ordena as restantes por data
   const processedMeetings = data.map(item => {
     if (!item['Título'] || !item['Data'] || !item['Hora']) return null;
     
@@ -196,6 +204,11 @@ function loadThematicMeetings(data) {
   .filter(item => item !== null && item.meetingDate >= currentDateTime)
   .sort((a, b) => a.meetingDate - b.meetingDate);
 
+  if (processedMeetings.length === 0) {
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d;">Nenhuma reunião temática agendada para os próximos dias.</p>';
+    return;
+  }
+
   processedMeetings.forEach(item => {
     const yyyy = item.meetingDate.getFullYear();
     const mm = String(item.meetingDate.getMonth() + 1).padStart(2, '0');
@@ -208,7 +221,7 @@ function loadThematicMeetings(data) {
     const endIso = `${yyyy}${mm}${dd}T${endHourComputed}${min}00`;
     
     const detailsText = `Facilitador: ${item['Facilitador(a)'] || 'Não informado'}\nGrupo: ${item['Grupo'] || 'Não informado'}\nLink da reunião: ${item['Link']}`;
-    const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}`;
+    const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item['Título'])}&dates=${startIso}/${endIso}&details=${encodeURIComponent(detailsText)}&ctz=America/Sao_Paulo`;
 
     container.innerHTML += `
       <div class="thematic-card">
