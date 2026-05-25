@@ -81,7 +81,7 @@ function shareReflectionEncoded(encodedData) {
       url: window.location.href
     });
   } catch (e) {
-    console.error("Erro ao partilhar reflexão:", e);
+    console.error("Erro ao compartilhar reflexão:", e);
   }
 }
 
@@ -114,7 +114,7 @@ async function shareThematicEncoded(encodedData) {
           return; 
         }
       } catch (fetchError) {
-        console.warn("Falha ao anexar imagem (possível bloqueio de CORS). Partilhando apenas texto.", fetchError);
+        console.warn("Falha ao anexar imagem (possível bloqueio de CORS). Compartilhando apenas texto.", fetchError);
         shareData.text += `\n🖼️ Imagem: ${item.image}`;
       }
     }
@@ -122,7 +122,7 @@ async function shareThematicEncoded(encodedData) {
     invokeShare(shareData);
 
   } catch (e) {
-    console.error("Erro ao partilhar temática:", e);
+    console.error("Erro ao compartilhar temática:", e);
   }
 }
 
@@ -134,7 +134,7 @@ function speakTextEncoded(encodedText) {
     currentSpeech.lang = 'pt-BR';
     window.speechSynthesis.speak(currentSpeech);
   } else {
-    alert("O seu navegador não suporta leitura em voz alta.");
+    alert("Seu navegador não suporta leitura em voz alta.");
   }
 }
 
@@ -176,7 +176,7 @@ function displayDailyReflection(reflections) {
       <div class="reflection-actions">
         <button class="btn-reflection" onclick="speakTextEncoded('${textToSpeakEncoded}')">🔊 Ouvir</button>
         <button class="btn-reflection" onclick="stopSpeaking()">⏹ Parar</button>
-        <button class="btn-share-icon-circle" title="Partilhar" onclick="shareReflectionEncoded('${shareDataEncoded}')">
+        <button class="btn-share-icon-circle" title="Compartilhar" onclick="shareReflectionEncoded('${shareDataEncoded}')">
           ${shareIconSVG}
         </button>
       </div>
@@ -302,7 +302,7 @@ function renderPage() {
             ${passwordHtml}
           </div>
         </div>
-        <a href="${meeting['Link da Reunião']}" target="_blank" class="btn-join">Aceder à Sala</a>
+        <a href="${meeting['Link da Reunião']}" target="_blank" class="btn-join">Acessar Sala</a>
       </li>
     `;
   });
@@ -404,7 +404,7 @@ function loadThematicMeetings(data) {
           <div>
             <div class="thematic-header-line">
               <h3>${item['Título']} ${dateTagHtml}</h3>
-              <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-share-icon-circle" title="Partilhar">
+              <button onclick="shareThematicEncoded('${shareDataEncoded}')" class="btn-share-icon-circle" title="Compartilhar">
                 ${shareIconSVG}
               </button>
             </div>
@@ -415,7 +415,7 @@ function loadThematicMeetings(data) {
           </div>
           <div class="thematic-actions">
             <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
-            <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Agenda</a>
+            <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
           </div>
         </div>
       </div>
