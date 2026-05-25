@@ -62,18 +62,14 @@ function displayDailyReflection(reflections) {
   if (todayRef) {
     let text = todayRef.Texto;
 
-    // 1. Corrige traduções erradas da literatura vindas do arquivo base
     text = text.replace(/COMO BILL VÊ\s*(IT)?/gi, "NA OPINIÃO DE BILL");
 
-    // 2. Cria uma regra abrangente para encontrar a citação de literatura no início do texto
     const citationRegex = /((ALCOÓLICOS ANÔNIMOS|DOZE PASSOS E DOZE TRADIÇÕES|NA OPINIÃO DE BILL|VIVER SÓBRIO|REFLEXÕES DIÁRIAS)[^.]+?p\.?\s*\d+)/i;
 
     let formattedText = text;
     if (citationRegex.test(text)) {
-      // Aplica a quebra de linha dupla logo após a citação com página detectada
       formattedText = text.replace(citationRegex, '$1<br><br>');
     } else {
-      // Caso não ache o padrão com página, mas encontre o título do livro isolado no começo
       const bookIsolatedRegex = /^(ALCOÓLICOS ANÔNIMOS|DOZE PASSOS E DOZE TRADIÇÕES|NA OPINIÃO DE BILL|VIVER SÓBRIO|REFLEXÕES DIÁRIAS)/i;
       formattedText = text.replace(bookIsolatedRegex, '$1<br><br>');
     }
@@ -100,8 +96,14 @@ function applyFilter(langFilter) {
                     meetingDays.includes(currentShortDayName);
     if (!isToday) return false;
 
-    const lang = meeting['Idioma'] || '';
-    const langCode = lang.toLowerCase().includes('inglês') || lang.toLowerCase().includes('english') ? 'EN' : 'PT';
+    const lang = (meeting['Idioma'] || '').toLowerCase();
+    let langCode = 'PT';
+    if (lang.includes('inglês') || lang.includes('english') || lang === 'en') {
+      langCode = 'EN';
+    } else if (lang.includes('espanhol') || lang.includes('español') || lang === 'es') {
+      langCode = 'ES';
+    }
+
     if (currentLangFilter !== 'ALL' && langCode !== currentLangFilter) return false;
 
     const timeStr = meeting['Horário de Início'];
@@ -137,8 +139,14 @@ function renderPage() {
   const pageItems = currentFilteredMeetings.slice(startIndex, endIndex);
 
   pageItems.forEach(meeting => {
-    const isEnglish = meeting['Idioma'].toLowerCase().includes('inglês') || meeting['Idioma'].toLowerCase().includes('english');
-    const flagImg = isEnglish ? '<img src="https://flagcdn.com/w20/gb.png" alt="UK" class="flag-icon">' : '<img src="https://flagcdn.com/w20/br.png" alt="BR" class="flag-icon">';
+    const langStr = (meeting['Idioma'] || '').toLowerCase();
+    let flagImg = '<img src="https://flagcdn.com/w20/br.png" alt="BR" class="flag-icon">';
+    if (langStr.includes('inglês') || langStr.includes('english') || langStr === 'en') {
+      flagImg = '<img src="https://flagcdn.com/w20/gb.png" alt="UK" class="flag-icon">';
+    } else if (langStr.includes('espanhol') || langStr.includes('español') || langStr === 'es') {
+      flagImg = '<img src="https://flagcdn.com/w20/es.png" alt="ES" class="flag-icon">';
+    }
+
     const endTimeStr = meeting['Horário de Término'] ? ` às ${meeting['Horário de Término']}` : '';
     
     const notes = meeting['Anotações'] || '';
@@ -147,7 +155,6 @@ function renderPage() {
       passwordHtml = `<div class="meeting-password">${notes}</div>`;
     }
     
-    // Processamento da tag condicional sem interromper a paginação
     const rawAudience = meeting['Público'] ? meeting['Público'].trim() : '';
     let audienceHtml = '';
     
