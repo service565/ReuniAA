@@ -70,6 +70,7 @@ a:hover {
 
 .reflection-actions {
   display: flex;
+  align-items: center;
   gap: 10px;
   margin-bottom: 15px;
   flex-wrap: wrap;
@@ -85,30 +86,33 @@ a:hover {
   font-size: 0.85em;
   font-weight: bold;
   transition: opacity 0.2s;
+  height: 34px;
 }
 
 .btn-reflection:hover {
   opacity: 0.9;
 }
 
-.btn-share-ref {
-  background-color: transparent;
-  color: #7f8c8d;
+.btn-share-icon-circle {
+  background: transparent;
   border: 2px solid #bdc3c7;
+  color: #7f8c8d;
   border-radius: 50%;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  cursor: pointer;
   padding: 0;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
-.btn-share-ref:hover {
+.btn-share-icon-circle:hover {
   border-color: var(--accent);
   color: var(--accent);
   background-color: #f4f7f6;
-  opacity: 1;
 }
 
 /* Filtros de Idioma */
@@ -286,7 +290,7 @@ a:hover {
 
 .thematic-header-line {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 8px;
@@ -303,29 +307,6 @@ a:hover {
   color: var(--primary);
 }
 
-.btn-share-icon-circle {
-  background: transparent;
-  border: 2px solid #bdc3c7;
-  color: #7f8c8d;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.btn-share-icon-circle:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background-color: #f4f7f6;
-}
-
-/* Etiquetas Hoje / Amanhã das Temáticas */
 .thematic-tag {
   font-size: 0.6em;
   padding: 3px 8px;
@@ -379,10 +360,9 @@ a:hover {
   text-decoration: none;
 }
 
-/* Botão Flutuante de Compartilhar Página */
-.floating-share-btn {
+/* Botões Flutuantes (Download e Partilhar) */
+.floating-btn {
   position: fixed;
-  bottom: 30px;
   right: 30px;
   background-color: var(--accent);
   color: white;
@@ -400,12 +380,20 @@ a:hover {
   padding: 0;
 }
 
-.floating-share-btn:hover {
+.floating-btn:hover {
   opacity: 0.9;
   transform: translateY(-3px);
 }
 
-/* Regras Responsivas para Celular */
+.floating-share-btn {
+  bottom: 30px;
+}
+
+.floating-install-btn {
+  bottom: 95px;
+  background-color: #27ae60;
+}
+
 @media (max-width: 768px) {
   .layout-grid {
     grid-template-columns: 1fr;
@@ -441,8 +429,15 @@ a:hover {
     max-width: 100%;
   }
 
+  .floating-btn {
+    right: 20px;
+  }
+
   .floating-share-btn {
     bottom: 20px;
-    right: 20px;
+  }
+
+  .floating-install-btn {
+    bottom: 85px;
   }
 }
