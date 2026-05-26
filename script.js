@@ -215,8 +215,28 @@ function applyFilter(langFilter) {
     if (!timeStr) return false;
     
     const [mHour, mMinute] = timeStr.split(':').map(Number);
-    if (mHour < currentHour) return false;
-    if (mHour === currentHour && mMinute < currentMinute) return false;
+    let endHour = mHour + 1; // Duração padrão de 1h se não especificado
+    let endMinute = mMinute;
+
+    if (meeting['Horário de Término']) {
+      const parsedEnd = meeting['Horário de Término'].split(':').map(Number);
+      if (parsedEnd.length === 2 && !isNaN(parsedEnd[0])) {
+        endHour = parsedEnd[0];
+        endMinute = parsedEnd[1];
+      }
+    }
+
+    const currentMins = currentHour * 60 + currentMinute;
+    const startMins = mHour * 60 + mMinute;
+    let endMins = endHour * 60 + endMinute;
+
+    // Se a reunião virar a meia-noite (ex: 23:00 às 01:00)
+    if (endMins <= startMins) {
+      endMins += 24 * 60;
+    }
+
+    // Apenas oculta a reunião se o horário atual já ultrapassou o término
+    if (currentMins >= endMins) return false;
 
     return true;
   });
@@ -414,7 +434,7 @@ function loadThematicMeetings(data) {
             <p><strong>Grupo:</strong> ${item['Grupo'] || 'Não informado'}</p>
           </div>
           <div class="thematic-actions">
-            <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Link</a>
+            <a href="${item['Link']}" target="_blank" class="btn-action btn-meeting-link">Acessar Sala</a>
             <a href="${calendarLink}" target="_blank" class="btn-action btn-calendar-link">Lembrete na Agenda</a>
           </div>
         </div>
