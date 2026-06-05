@@ -176,6 +176,27 @@ function displayDailyReflection(reflections) {
     const textToSpeakEncoded = encodeURIComponent(`${titleText}. ${cleanContentForShare}`);
     const shareDataEncoded = encodeURIComponent(JSON.stringify({ title: titleText, text: cleanContentForShare }));
 
+    let videoHtml = '';
+    if (todayRef['Meditação']) {
+      let videoLink = todayRef['Meditação'].trim();
+      
+      if (videoLink.includes('youtube.com/watch?v=')) {
+         videoLink = videoLink.replace('watch?v=', 'embed/');
+         if (videoLink.includes('&')) videoLink = videoLink.split('&')[0];
+      } else if (videoLink.includes('youtu.be/')) {
+         videoLink = videoLink.replace('youtu.be/', 'youtube.com/embed/');
+         if (videoLink.includes('?')) videoLink = videoLink.split('?')[0];
+      }
+
+      videoHtml = `
+        <hr class="meditation-divider">
+        <h3 class="meditation-title">Meditação</h3>
+        <div class="video-responsive">
+          <iframe src="${videoLink}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+      `;
+    }
+
     container.innerHTML = `
       <div class="reflection-actions">
         <button class="btn-reflection" onclick="speakTextEncoded('${textToSpeakEncoded}')">🔊 Ouvir</button>
@@ -186,10 +207,12 @@ function displayDailyReflection(reflections) {
       </div>
       <p><strong>${titleText}</strong></p>
       <p>${formattedText}</p>
+      ${videoHtml}
     `;
   } else {
     container.innerHTML = `<p>Reflexão do dia não encontrada.</p>`;
   }
+}
 }
 
 function applyFilter(langFilter) {
