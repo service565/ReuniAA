@@ -213,7 +213,6 @@ function displayDailyReflection(reflections) {
     container.innerHTML = `<p>Reflexão do dia não encontrada.</p>`;
   }
 }
-}
 
 function applyFilter(langFilter) {
   currentLangFilter = langFilter;
