@@ -400,7 +400,11 @@ function loadThematicMeetings(data) {
     }
     return null;
   })
-  .filter(item => item !== null && item.meetingDate >= currentDateTime)
+  .filter(item => {
+    if (item === null) return false;
+    const thirtyMinAfterStart = new Date(item.meetingDate.getTime() + 30 * 60 * 1000);
+    return thirtyMinAfterStart > currentDateTime;
+  })
   .sort((a, b) => a.meetingDate - b.meetingDate);
 
   if (processedMeetings.length === 0) {
@@ -422,7 +426,11 @@ function loadThematicMeetings(data) {
     const meetingMidnight = new Date(yyyy, item.meetingDate.getMonth(), item.meetingDate.getDate()).getTime();
     let dateTagHtml = '';
     
-    if (meetingMidnight === todayMidnight) {
+    const isHappening = item.meetingDate <= currentDateTime && currentDateTime < new Date(item.meetingDate.getTime() + 30 * 60 * 1000);
+
+    if (isHappening) {
+      dateTagHtml = '<span class="thematic-tag thematic-tag-agora">Agora</span>';
+    } else if (meetingMidnight === todayMidnight) {
       dateTagHtml = '<span class="thematic-tag thematic-tag-hoje">Hoje</span>';
     } else if (meetingMidnight === tomorrowMidnight) {
       dateTagHtml = '<span class="thematic-tag thematic-tag-amanha">Amanhã</span>';
