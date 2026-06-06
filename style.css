@@ -317,6 +317,16 @@ a:hover {
   white-space: nowrap;
 }
 
+.thematic-tag-agora {
+  background-color: #27ae60;
+  animation: pulse-agora 1.5s infinite;
+}
+
+@keyframes pulse-agora {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 .thematic-tag-hoje {
   background-color: var(--danger);
 }
