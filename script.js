@@ -85,11 +85,15 @@ function shareReflectionEncoded(encodedData) {
   }
 }
 
-async function shareThematicEncoded(encodedData) {
+function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
     
     let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
+    
+    if (item.image) {
+      shareText += `\n🖼️ Imagem: ${item.image}`;
+    }
     
     let shareData = {
       title: `Reunião Temática: ${item.title}`,
@@ -97,27 +101,12 @@ async function shareThematicEncoded(encodedData) {
       url: window.location.href
     };
 
-    if (item.image && navigator.canShare) {
-      try {
-        const response = await fetch(item.image);
-        const blob = await response.blob();
-        const ext = blob.type.split('/')[1] || 'jpg';
-        const file = new File([blob], `card_tematica.${ext}`, { type: blob.type });
-        
-        const dataWithFile = {
-          ...shareData,
-          files: [file]
-        };
+    invokeShare(shareData);
 
-        if (navigator.canShare(dataWithFile)) {
-          await navigator.share(dataWithFile);
-          return; 
-        }
-      } catch (fetchError) {
-        console.warn("Falha ao anexar imagem (possível bloqueio de CORS). Compartilhando apenas texto.", fetchError);
-        shareData.text += `\n🖼️ Imagem: ${item.image}`;
-      }
-    }
+  } catch (e) {
+    console.error("Erro ao compartilhar temática:", e);
+  }
+}
 
     invokeShare(shareData);
 
