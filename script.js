@@ -60,12 +60,8 @@ function init() {
 }
 
 function invokeShare(data) {
-  if (navigator.share) {
-    navigator.share(data).catch(console.error);
-  } else {
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(data.title + '\n\n' + data.text + '\n\n' + data.url)}`;
-    window.open(waUrl, '_blank');
-  }
+  const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(data.title + '\n\n' + data.text + '\n\n' + data.url)}`;
+  window.open(waUrl, '_blank');
 }
 
 function sharePage() {
