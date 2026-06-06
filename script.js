@@ -38,7 +38,6 @@ function init() {
     header: true,
     complete: function(results) {
       displayDailyReflection(results.data);
-    }
   });
 
   Papa.parse(URL_REUNIOES, {
