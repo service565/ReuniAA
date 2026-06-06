@@ -38,6 +38,12 @@ function init() {
     header: true,
     complete: function(results) {
       displayDailyReflection(results.data);
+    },
+    error: function(err) {
+      console.error("Erro ao carregar reflexões:", err);
+      const container = document.getElementById('daily-reflection');
+      if (container) container.innerHTML = '<p>Não foi possível carregar a reflexão do dia. Verifique sua conexão.</p>';
+    }
   });
 
   Papa.parse(URL_REUNIOES, {
@@ -46,6 +52,11 @@ function init() {
     complete: function(results) {
       dailyMeetingsData = results.data;
       applyFilter('PT');
+    },
+    error: function(err) {
+      console.error("Erro ao carregar reuniões:", err);
+      const listElement = document.getElementById('meetings-list');
+      if (listElement) listElement.innerHTML = '<li>Não foi possível carregar as reuniões. Verifique sua conexão.</li>';
     }
   });
 
@@ -54,6 +65,11 @@ function init() {
     header: true,
     complete: function(results) {
       loadThematicMeetings(results.data);
+    },
+    error: function(err) {
+      console.error("Erro ao carregar temáticas:", err);
+      const container = document.getElementById('thematic-meetings-list');
+      if (container) container.innerHTML = '<p>Não foi possível carregar as reuniões temáticas. Verifique sua conexão.</p>';
     }
   });
 }
@@ -99,13 +115,6 @@ function shareThematicEncoded(encodedData) {
       text: shareText,
       url: window.location.href
     };
-
-    invokeShare(shareData);
-
-  } catch (e) {
-    console.error("Erro ao compartilhar temática:", e);
-  }
-}
 
     invokeShare(shareData);
 
@@ -201,6 +210,11 @@ function displayDailyReflection(reflections) {
 function applyFilter(langFilter) {
   currentLangFilter = langFilter;
   currentPage = 1;
+
+  // Recalcula hora atual a cada filtragem para não congelar após horas de uso
+  const nowFilter = new Date();
+  const currentHour = nowFilter.getHours();
+  const currentMinute = nowFilter.getMinutes();
 
   currentFilteredMeetings = dailyMeetingsData.filter(meeting => {
     if (!meeting['Nome da Reunião']) return false;
