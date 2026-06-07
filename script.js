@@ -38,11 +38,6 @@ function init() {
     header: true,
     complete: function(results) {
       displayDailyReflection(results.data);
-    },
-    error: function(err) {
-      console.error("Erro ao carregar reflexões:", err);
-      const container = document.getElementById('daily-reflection');
-      if (container) container.innerHTML = '<p>Não foi possível carregar a reflexão do dia. Verifique sua conexão.</p>';
     }
   });
 
@@ -52,11 +47,6 @@ function init() {
     complete: function(results) {
       dailyMeetingsData = results.data;
       applyFilter('PT');
-    },
-    error: function(err) {
-      console.error("Erro ao carregar reuniões:", err);
-      const listElement = document.getElementById('meetings-list');
-      if (listElement) listElement.innerHTML = '<li>Não foi possível carregar as reuniões. Verifique sua conexão.</li>';
     }
   });
 
@@ -65,11 +55,6 @@ function init() {
     header: true,
     complete: function(results) {
       loadThematicMeetings(results.data);
-    },
-    error: function(err) {
-      console.error("Erro ao carregar temáticas:", err);
-      const container = document.getElementById('thematic-meetings-list');
-      if (container) container.innerHTML = '<p>Não foi possível carregar as reuniões temáticas. Verifique sua conexão.</p>';
     }
   });
 }
@@ -100,21 +85,39 @@ function shareReflectionEncoded(encodedData) {
   }
 }
 
-function shareThematicEncoded(encodedData) {
+async function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
     
     let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
-    
-    if (item.image) {
-      shareText += `\n🖼️ Imagem: ${item.image}`;
-    }
     
     let shareData = {
       title: `Reunião Temática: ${item.title}`,
       text: shareText,
       url: window.location.href
     };
+
+    if (item.image && navigator.canShare) {
+      try {
+        const response = await fetch(item.image);
+        const blob = await response.blob();
+        const ext = blob.type.split('/')[1] || 'jpg';
+        const file = new File([blob], `card_tematica.${ext}`, { type: blob.type });
+        
+        const dataWithFile = {
+          ...shareData,
+          files: [file]
+        };
+
+        if (navigator.canShare(dataWithFile)) {
+          await navigator.share(dataWithFile);
+          return; 
+        }
+      } catch (fetchError) {
+        console.warn("Falha ao anexar imagem (possível bloqueio de CORS). Compartilhando apenas texto.", fetchError);
+        shareData.text += `\n🖼️ Imagem: ${item.image}`;
+      }
+    }
 
     invokeShare(shareData);
 
@@ -210,11 +213,6 @@ function displayDailyReflection(reflections) {
 function applyFilter(langFilter) {
   currentLangFilter = langFilter;
   currentPage = 1;
-
-  // Recalcula hora atual a cada filtragem para não congelar após horas de uso
-  const nowFilter = new Date();
-  const currentHour = nowFilter.getHours();
-  const currentMinute = nowFilter.getMinutes();
 
   currentFilteredMeetings = dailyMeetingsData.filter(meeting => {
     if (!meeting['Nome da Reunião']) return false;
@@ -400,11 +398,7 @@ function loadThematicMeetings(data) {
     }
     return null;
   })
-  .filter(item => {
-    if (item === null) return false;
-    const thirtyMinAfterStart = new Date(item.meetingDate.getTime() + 30 * 60 * 1000);
-    return thirtyMinAfterStart > currentDateTime;
-  })
+  .filter(item => item !== null && item.meetingDate >= currentDateTime)
   .sort((a, b) => a.meetingDate - b.meetingDate);
 
   if (processedMeetings.length === 0) {
@@ -426,11 +420,7 @@ function loadThematicMeetings(data) {
     const meetingMidnight = new Date(yyyy, item.meetingDate.getMonth(), item.meetingDate.getDate()).getTime();
     let dateTagHtml = '';
     
-    const isHappening = item.meetingDate <= currentDateTime && currentDateTime < new Date(item.meetingDate.getTime() + 30 * 60 * 1000);
-
-    if (isHappening) {
-      dateTagHtml = '<span class="thematic-tag thematic-tag-agora">Agora</span>';
-    } else if (meetingMidnight === todayMidnight) {
+    if (meetingMidnight === todayMidnight) {
       dateTagHtml = '<span class="thematic-tag thematic-tag-hoje">Hoje</span>';
     } else if (meetingMidnight === tomorrowMidnight) {
       dateTagHtml = '<span class="thematic-tag thematic-tag-amanha">Amanhã</span>';
