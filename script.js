@@ -103,20 +103,36 @@ function shareReflectionEncoded(encodedData) {
 function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
-    
-    let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
-    
-    if (item.image) {
-      shareText += `\n🖼️ Imagem: ${item.image}`;
-    }
-    
-    let shareData = {
+
+    const shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
+
+    const shareData = {
       title: `Reunião Temática: ${item.title}`,
       text: shareText,
       url: window.location.href
     };
 
-    invokeShare(shareData);
+    // Se houver imagem, tenta buscá-la e anexar como arquivo
+    if (item.image && navigator.canShare) {
+      fetch(item.image)
+        .then(res => res.blob())
+        .then(blob => {
+          const ext = blob.type.includes('png') ? 'png' : 'jpeg';
+          const file = new File([blob], `reuniao.${ext}`, { type: blob.type });
+          const shareWithFile = { ...shareData, files: [file] };
+          if (navigator.canShare(shareWithFile)) {
+            navigator.share(shareWithFile).catch(e => {
+              // Se falhar com arquivo, compartilha sem imagem
+              invokeShare(shareData);
+            });
+          } else {
+            invokeShare(shareData);
+          }
+        })
+        .catch(() => invokeShare(shareData));
+    } else {
+      invokeShare(shareData);
+    }
 
   } catch (e) {
     console.error("Erro ao compartilhar temática:", e);
