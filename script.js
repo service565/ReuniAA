@@ -104,14 +104,15 @@ function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
 
-    // Monta o texto da mensagem
-    let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}\n\n🌐 ${window.location.href}`;
+    let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
 
-    // Usa a URL da imagem como link principal — o WhatsApp gera preview dela
-    const urlParaPreview = item.image || window.location.href;
+    // URL do site primeiro, imagem por último (WhatsApp gera preview do último link)
+    let finalUrl = window.location.href;
+    if (item.image) {
+      finalUrl = finalUrl + '\n' + item.image;
+    }
 
-    const waText = encodeURIComponent(shareText);
-    const waUrl = `https://api.whatsapp.com/send?text=${waText}%0A${encodeURIComponent(urlParaPreview)}`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + '\n\n' + finalUrl)}`;
     window.open(waUrl, '_blank');
 
   } catch (e) {
