@@ -103,17 +103,20 @@ function shareReflectionEncoded(encodedData) {
 function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
-
+    
     let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
-
-    // URL do site primeiro, imagem por último (WhatsApp gera preview do último link)
-    let finalUrl = window.location.href;
+    
     if (item.image) {
-      finalUrl = finalUrl + '\n' + item.image;
+      shareText += `\n🖼️ Imagem: ${item.image}`;
     }
+    
+    let shareData = {
+      title: `Reunião Temática: ${item.title}`,
+      text: shareText,
+      url: window.location.href
+    };
 
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + '\n\n' + finalUrl)}`;
-    window.open(waUrl, '_blank');
+    invokeShare(shareData);
 
   } catch (e) {
     console.error("Erro ao compartilhar temática:", e);
