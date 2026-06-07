@@ -106,34 +106,61 @@ function shareThematicEncoded(encodedData) {
 
     const shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
 
+    function compartilharSemImagem() {
+      if (navigator.share) {
+        navigator.share({ text: shareText });
+      } else {
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+        window.open(waUrl, '_blank');
+      }
+    }
+
     if (item.image && navigator.share) {
-      // Usa proxy CORS para contornar bloqueio do imgur
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(item.image)}`;
-      fetch(proxyUrl)
-        .then(res => res.blob())
+      // Tenta buscar imagem diretamente (funciona se o servidor permitir)
+      fetch(item.image, { mode: 'cors' })
+        .then(res => {
+          if (!res.ok) throw new Error('fetch falhou');
+          return res.blob();
+        })
         .then(blob => {
           const ext = blob.type.includes('png') ? 'png' : 'jpeg';
           const file = new File([blob], `reuniao.${ext}`, { type: blob.type });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-              text: shareText,
-              files: [file]
-            }).catch(() => {
-              // fallback sem imagem
-              navigator.share({ text: shareText });
-            });
+            navigator.share({ text: shareText, files: [file] })
+              .catch(() => compartilharSemImagem());
           } else {
-            navigator.share({ text: shareText });
+            compartilharSemImagem();
           }
         })
         .catch(() => {
-          navigator.share({ text: shareText });
+          // CORS bloqueou — usa img element para converter via canvas
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = function() {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              canvas.getContext('2d').drawImage(img, 0, 0);
+              canvas.toBlob(blob => {
+                if (!blob) return compartilharSemImagem();
+                const file = new File([blob], 'reuniao.jpeg', { type: 'image/jpeg' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                  navigator.share({ text: shareText, files: [file] })
+                    .catch(() => compartilharSemImagem());
+                } else {
+                  compartilharSemImagem();
+                }
+              }, 'image/jpeg', 0.9);
+            } catch(e) {
+              compartilharSemImagem();
+            }
+          };
+          img.onerror = () => compartilharSemImagem();
+          img.src = item.image;
         });
-    } else if (navigator.share) {
-      navigator.share({ text: shareText });
     } else {
-      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-      window.open(waUrl, '_blank');
+      compartilharSemImagem();
     }
 
   } catch (e) {
