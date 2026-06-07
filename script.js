@@ -104,7 +104,7 @@ function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
 
-    const shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
+    const shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}\n🌐 ${window.location.href}`;
 
     function compartilharSemImagem() {
       if (navigator.share) {
