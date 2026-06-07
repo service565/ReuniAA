@@ -103,20 +103,38 @@ function shareReflectionEncoded(encodedData) {
 function shareThematicEncoded(encodedData) {
   try {
     const item = JSON.parse(decodeURIComponent(encodedData));
-    
-    let shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
-    
-    if (item.image) {
-      shareText += `\n🖼️ Imagem: ${item.image}`;
-    }
-    
-    let shareData = {
-      title: `Reunião Temática: ${item.title}`,
-      text: shareText,
-      url: window.location.href
-    };
 
-    invokeShare(shareData);
+    const shareText = `*${item.title}*\n\n📅 Data: ${item.date}\n⏰ Hora: ${item.time}\n🗣 Facilitador: ${item.facilitator}\n👥 Grupo: ${item.group}\n\n🔗 Link da sala: ${item.link}`;
+
+    if (item.image && navigator.share) {
+      // Usa proxy CORS para contornar bloqueio do imgur
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(item.image)}`;
+      fetch(proxyUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const ext = blob.type.includes('png') ? 'png' : 'jpeg';
+          const file = new File([blob], `reuniao.${ext}`, { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              text: shareText,
+              files: [file]
+            }).catch(() => {
+              // fallback sem imagem
+              navigator.share({ text: shareText });
+            });
+          } else {
+            navigator.share({ text: shareText });
+          }
+        })
+        .catch(() => {
+          navigator.share({ text: shareText });
+        });
+    } else if (navigator.share) {
+      navigator.share({ text: shareText });
+    } else {
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+      window.open(waUrl, '_blank');
+    }
 
   } catch (e) {
     console.error("Erro ao compartilhar temática:", e);
